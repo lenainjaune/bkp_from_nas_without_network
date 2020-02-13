@@ -538,7 +538,8 @@ touch /pool_bkp/hourly.0/
 => OK
 
 # 1ère sauvegarde "heure" (attention : les sauvegardes sont soumises à rotation\
-#  => dès qu'il y a 6 sauvegardes, la plus ancienne "hourly" est supprimée - configuré dans /etc/rsnapshot.conf)
+#  => dès qu'il y a 6 sauvegardes (configuré dans /etc/rsnapshot.conf)
+#  la plus ancienne "hourly" est supprimée
 root@BKP:~# rsnapshot hourly
 root@BKP:~# find /pool_bkp/ -type f | sort
 /pool_bkp/hourly.0/nas/test
