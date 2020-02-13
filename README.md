@@ -537,7 +537,7 @@ mkdir -m 0755 -p /pool_bkp/hourly.0/
 touch /pool_bkp/hourly.0/ 
 => OK
 
-# 1ère sauvegarde "heure" (attention : les sauvegardes sont soumises à rotation\
+# 1ère sauvegarde "heure" (attention : les sauvegardes sont soumises à rotation
 #  => dès qu'il y a 6 sauvegardes (configuré dans /etc/rsnapshot.conf)
 #  la plus ancienne "hourly" est supprimée
 root@BKP:~# rsnapshot hourly
