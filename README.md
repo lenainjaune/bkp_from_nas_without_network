@@ -13,7 +13,6 @@ Pourquoi des miroirs de 2 disques ?
 Pour que chaque disque contienne les mêmes données et qu'en cas de sinistre, on puisse éjecter physiquement 1 des 2 disques dans des racks SATA amovibles. Ainsi 1 des 4 disques est suffisant pour tout reconstruire et si on a pu sauver 1 disque du BKP on a en plus les sauvegardes différentielles d'1 an. 
 
 # Un mot sur ZFS on Linux
-
 J'ai découvert la technologie ZFS (et surtout [ZFS on Linux](https://zfsonlinux.org/index.html)) alors que je cherchais une solution pour déterminer l'emplacement d'un disque en défaut d'un RAID1 mdadm de 2 disques sur un NAS [OpenMediaVault](https://www.openmediavault.org/) (voir le fil [ici](https://forum.openmediavault.org/index.php/Thread/26559-A-way-to-know-which-disk-replace-on-a-bay/#post200280). Cette technologie Open Source ne cesse de m'étonner et j'en fais volontier sa promotion : système de fichier haute capacité (2^48 fichiers), fiabilité, RAID, compression, ACLs, ...
 
 Un petit bémol cependant au moment où je rédige, actuellement ZFS a une incompatibilité de licence Open-Source, car sa licence CDDL (Common Development and Distribution License) est incompatible avec la GNU GPL (General Public License) du noyau Linux qui empêche (pour le moment) d'être incluse dans le noyau Linux et fait craindre des procès éventuels de la part d'Oracle, propriétaire de ZFS (voir [cet article](https://linux.developpez.com/actu/290040/Linus-Torvalds-n-utilisez-pas-ZFS-jusqu-a-ce-que-j-aie-une-lettre-officielle-d-Oracle-signee-par-son-conseil-ou-par-Larry-Ellison-qui-nous-y-autorise-et-precise-que-le-produit-final-est-sous-GPL/) pour plus d'explications).
@@ -92,7 +91,7 @@ Nota d'écriture pour la lisibilité :
    <b># très long</b> (reste coupé et mis en commentaire derrière #)
 </pre>
 
-# INSTALLER ZFS SUR NAS (Debian Buster)
+# Installer ZFS sur NAS (Debian Buster)
 ```sh
 # Nota : sur NAS il n'est pas nécessaire d'installer OpenMediaVault,
 # puisqu'on veut juste des données à sauvegarder depuis un pool ZFS. Si vous voulez l'installer
@@ -149,7 +148,7 @@ root@NAS:~# apt-get install -y zfs-dkms zfsutils-linux
 root@NAS:~# apt install -y rsync
 ```
 
-# CREER POOL NAS
+# Créer pool NAS
 ```sh
 # créer le pool miroir sur les 2 disques vides (nas1 = sdb et nas2 = sdc)
 # nota : ashift=12 permet d optimiser le stockage 
@@ -227,7 +226,7 @@ root@NAS:~# ls -l /pool_nas/test
 # => on peut écrire dessus
 ```
 
-# TEST EN DEGRADE + RECONSTRUCTION
+# Test en dégradé + reconstruction
 ```sh
 # On éteint, on enlève le disque nas2 puis on redémarre
 root@NAS:~# zpool list
@@ -280,7 +279,7 @@ ok
 # => tout est revenu à la normale après une opération de reconstruction (resilvering)
 ```
 
-# CLONE nas2 VERS bkp2
+# Clone nas2 vers bkp2
 ```sh
 # On éteint NAS, on ajoute le disque bkp2 puis on redémarre
 root@HOST:~# virsh domblklist NAS
@@ -352,7 +351,7 @@ root@NAS:~# poweroff
 # enlever le disque bkp2 de NAS
 ```
 
-# ZFS SUR BKP + POOL RAID1 DE 1 DISQUE UNIQUE
+# ZFS sur BKP + pool RAID1 de 1 disque unique (Debian Buster)
 ```sh
 # depuis BKP ajouter les disques bkp1 et bkp2
 
@@ -369,7 +368,7 @@ root@HOST:~$ virsh domblklist BKP
 
 # Démarrer BKP
 
-# Installer ZFS sur BKP (voir INSTALLER ZFS SUR NAS)
+# Installer ZFS sur BKP (voir Installer ZFS sur NAS)
 
 root@BKP:~$ lsblk -f
 NAME   FSTYPE     LABEL    UUID                                 FSAVAIL FSUSE% MOUNTPOINT
@@ -429,7 +428,7 @@ errors: No known data errors
 # On peut ajouter les options importantes du stockage ZFS (voir BONUS)
 ```
 
-# IMPORTER LE POOL NAS EN LECTURE SEULE
+# Importer le pool NAS en lecture seule
 ```sh
 # On importe le pool_nas en RO (non permanent) et on tente de lire et écrire
 # nota1 : si l'import montre un message tel que "cannot import 'xxxx': pool was previously in use
@@ -471,7 +470,7 @@ root@BKP:~# echo ko > /pool_nas/test
 # => on peut bien lire les données du pool_nas mais PAS écrire
 ```
 
-# MISE EN PLACE DE RSNAPSHOT
+# Mise en place de RSNAPSHOT
 ```sh
 # En Résumé
 root@BKP:~# zfs mount
@@ -526,7 +525,7 @@ root@BKP:~# rsnapshot configtest
 Syntax OK
 ```
 
-# PREMIERES SAUVEGARDES SUR BKP
+# Premières sauvegardes sur BKP
 ```sh
 # rsnapshot nécessite rsync sur les cibles sauvegardées
 root@BKP:~# apt-get install -y rsnapshot
@@ -567,7 +566,7 @@ debut
 # => la plus ancienne sauvegarde est bien celle du début
 ```
 
-# ATTACHER bkp2 (CLONE nas2) AU POOL pool_bkp
+# Attacher bkp2 (clone de nas2) à pool_bkp
 ```sh
 # On abandonne le pool_nas sur le disque bkp2
 root@BKP:~# zpool list
@@ -631,12 +630,12 @@ debut
 #  et les données n'ont pas été altérées
 ```
 
-# FINALISER SAUVEGARDE DEPUIS NAS
+# Finaliser sauvegarde depuis NAS
 ```sh
 # Démarrer NAS
 
 # Rendre NAS accessible par SSH depuis BKP sans mot de passe puis tester
-# (voir MISE EN PLACE DE RSNAPSHOT)
+# (voir Mise en place de RSNAPSHOT)
 
 # Modifier le fichier de test
 root@NAS:~# echo depuis_nas > /pool_nas/test
