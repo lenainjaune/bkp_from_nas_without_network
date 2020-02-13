@@ -512,9 +512,6 @@ cmd_rsync	/usr/bin/rsync
 cmd_ssh	/usr/bin/ssh
 cmd_logger	/usr/bin/logger
 retain	hourly	6
-retain	daily	7
-retain	weekly	4
-retain	monthly	3
 verbose		2
 loglevel	3
 logfile		/pool_bkp/rsnapshot.log
@@ -541,7 +538,7 @@ touch /pool_bkp/hourly.0/
 => OK
 
 # 1ère sauvegarde "heure" (attention : les sauvegardes sont soumises à rotation\
-#  => la plus ancienne "hourly" est supprimée)
+#  => dès qu'il y a 6 sauvegardes, la plus ancienne "hourly" est supprimée - configuré dans /etc/rsnapshot.conf)
 root@BKP:~# rsnapshot hourly
 root@BKP:~# find /pool_bkp/ -type f | sort
 /pool_bkp/hourly.0/nas/test
