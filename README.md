@@ -2,8 +2,6 @@
 
 # Objectif
 Sauvegarde différentielle fichiers entre pools ZFS RAID1 2 disques distants sans utiliser le réseau
-OU
-Sauvegarde différentielle fichiers entre pools ZFS RAID1 2 disques distants le plus rapidement possible
 
 Voir aussi : [ZFS - ajouter un pool de 1 disque pour du RAID1](https://www.commentcamarche.net/forum/affich-36406170-zfs-ajouter-un-pool-de-1-disque-pour-du-raid1?gF-4hFHlxvdlq69e5GwmSAzhIdyMIVCDBAsuKJhgBdY)
 
