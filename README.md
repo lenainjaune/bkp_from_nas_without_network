@@ -100,35 +100,30 @@ Nota d'écriture pour la lisibilité :
 # Sur NAS ajouter les disques nas1 et nas2
 
 # Depuis HOST déterminer quels sont les fichiers de stockage du NAS
-root@HOST:~# virsh domblklist NAS
-Target   Source			# périphérique n°
--------------------------------------
- sda      -				# 1er
- sdb      /data/vhd/NAS.qcow2		# 2eme
- sdc      /data/vhd/zfs_nas1.qcow2	# 3eme
- sdd      /data/vhd/zfs_nas2.qcow2	# 4eme
-# Attention : il y a NON correspondance entre les dev de Target (sda, sdb, ...) 
-# et les devices de la VM
-
+root@HOST:~# virsh domblklist NAS | awk '! /^$/ && NR > 2 { print ( NR - 2) ":" $2 }'
+1:/mnt/3tb/buster-nas.qcow2
+2:-
+3:/data/vhd/zfs_nas1.qcow2
+4:/data/vhd/zfs_nas2.qcow2
 
 # Démarrer NAS
 
 # Déterminer quels sont les emplacements des "devices" du NAS
 # TODO : nota : comme indiqué précédemment les devices ont été ajoutés sur le bus SATA (en IDE ça ne marche pas) + idem plus bas
 root@NAS:~# find /dev/disk/by-path -type l -not -iname "*part*"\
- -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
-/dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> /dev/sr0	# 1er
-/dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /dev/sda	# 2eme
-/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb	# 3eme
-/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc	# 4eme
+ -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort | awk '{ print NR ":" $0 }'
+1:/dev/disk/by-path/pci-0000:00:08.0-ata-1 -> /dev/sda
+2:/dev/disk/by-path/pci-0000:00:08.0-ata-2 -> /dev/sr0
+3:/dev/disk/by-path/pci-0000:00:08.0-ata-3 -> /dev/sdb
+4:/dev/disk/by-path/pci-0000:00:08.0-ata-4 -> /dev/sdc
 # Attention : il n y a pas forcément de correspondance entre le numéro ata et le n° de périphérique
 
 # Correspondances résumées : 
-# device sur NAS -> emplacement sur NAS -> fichier source de stockage de HOST
-# /dev/sr0 -> /dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> rien (cdrom vide)
-# /dev/sda -> /dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /data/vhd/NAS.qcow2
-# /dev/sdb -> /dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /data/vhd/zfs_nas1.qcow2
-# /dev/sdc -> /dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /data/vhd/zfs_nas2.qcow2
+# n: device sur NAS -> emplacement sur NAS -> fichier source de stockage de HOST
+# 1: /dev/sr0 -> /dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> rien (cdrom vide)
+# 2: /dev/sda -> /dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /data/vhd/NAS.qcow2
+# 3: /dev/sdb -> /dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /data/vhd/zfs_nas1.qcow2
+# 4: /dev/sdc -> /dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /data/vhd/zfs_nas2.qcow2
 
 # Depuis le NAS installer ZFS + rsync (obligatoire pour être accédé par rsnapshot)
 # Guide installation ZFS On Linux : https://github.com/zfsonlinux/zfs/wiki/Debian
@@ -283,25 +278,21 @@ ok
 # Clone nas2 vers bkp2
 ```sh
 # On éteint NAS, on ajoute le disque bkp2 puis on redémarre
-root@HOST:~# virsh domblklist NAS
- Target   Source
--------------------------------------
+root@HOST:~# virsh domblklist NAS | awk '! /^$/ && NR > 2 { print ( NR - 2) ":" $2 }'
 ...
- sde      /data/vhd/zfs_bkp2.qcow2	# 5eme
-# Attention (rappel) : il y a NON correspondance entre les dev de Target (sda, sdb, ...)
-# et les devices de la VM
+5:/data/vhd/zfs_bkp2.qcow2
 
 root@NAS:~# find /dev/disk/by-path -type l -not -iname "*part*"\
- -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
+ -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort | awk '{ print NR ":" $0 }'
 ...
-/dev/disk/by-path/pci-0000:00:1f.2-ata-5 -> /dev/sdd	# 5eme
+5:/dev/disk/by-path/pci-0000:00:1f.2-ata-5 -> /dev/sdd
 # Attention : il n y a pas forcément de correspondance entre le numéro ata et le n° de périphérique
 # => nouveau périphérique SATA en 5 : /dev/sdd
 
 # Correspondances résumées : 
-# device sur NAS -> emplacement sur NAS -> fichier source de stockage de HOST
+# n: device sur NAS -> emplacement sur NAS -> fichier source de stockage de HOST
 # ...
-# /dev/sdd -> /dev/disk/by-path/pci-0000:00:1f.2-ata-5 -> /data/vhd/zfs_bkp2.qcow2
+# 5:/dev/sdd -> /dev/disk/by-path/pci-0000:00:1f.2-ata-5 -> /data/vhd/zfs_bkp2.qcow2
 
 root@NAS:~# lsblk -f
 NAME   FSTYPE     LABEL    UUID                                 FSAVAIL FSUSE% MOUNTPOINT
@@ -357,15 +348,11 @@ root@NAS:~# poweroff
 # depuis BKP ajouter les disques bkp1 et bkp2
 
 # depuis HOST déterminer quels sont les fichiers de stockage du NAS
-root@HOST:~$ virsh domblklist BKP
- Target   Source
--------------------------------------
- sda      -				# 1er
- sdc      /data/vhd/BKP.qcow2		# 2eme
- sdd      /data/vhd/zfs_bkp1.qcow2	# 3eme
- sde      /data/vhd/zfs_bkp2.qcow2	# 4eme
-# Attention (rappel) : il y a NON correspondance entre les dev de Target (sda, sdb, ...)
-# et les devices de la VM
+root@HOST:~$ virsh domblklist BKP | awk '! /^$/ && NR > 2 { print ( NR - 2) ":" $2 }'
+1:-
+2:/data/vhd/BKP.qcow2
+3:/data/vhd/zfs_bkp1.qcow2
+4:/data/vhd/zfs_bkp2.qcow2
 
 # Démarrer BKP
 
@@ -384,11 +371,11 @@ sdc
 sr0
 # => on voit bkp2 sur sdc (clone de nas2 du pool_nas) et bkp1 sur sdb non formaté
 root@BKP:~$ find /dev/disk/by-path -type l -not -iname "*part*"\
- -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
-/dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> /dev/sr0	# 1er
-/dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /dev/sda	# 2eme
-/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb	# 3eme
-/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc	# 4eme
+ -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort | awk '{ print NR ":" $0 }'
+1:/dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> /dev/sr0
+2:/dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /dev/sda
+3:/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb
+4:/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc
 # Attention : il n y a pas obligatoirement de correspondance entre le numéro ata
 # et le n° de périphérique
 
@@ -589,11 +576,11 @@ config:
 errors: No known data errors
 # => rappel : le pool_bkp N est PAS vu comme un miroir et il est néanmoins opérationnel (ONLINE)
 root@BKP:~$ find /dev/disk/by-path -type l -not -iname "*part*"\
- -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
-/dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> /dev/sr0	# 1er
-/dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /dev/sda	# 2eme
-/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb	# 3eme
-/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc	# 4eme
+ -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort | awk '{ print NR ":" $0 }'
+1:/dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> /dev/sr0
+2:/dev/disk/by-path/pci-0000:00:1f.2-ata-2 -> /dev/sda
+3:/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb
+4:/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc
 # Attention : il n y a pas obligatoirement de correspondance entre le numéro ata
 # et le n° de périphérique
 
@@ -687,15 +674,15 @@ config:
 errors: No known data errors
 root@BKP:~# zpool export -f pool_bkp
 root@BKP:~$ find /dev/disk/by-path -type l -not -iname "*part*"\
- -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
+ -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort | awk '{ print NR ":" $0 }'
 ...
-/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb
-/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc
+3:/dev/disk/by-path/pci-0000:00:1f.2-ata-3 -> /dev/sdb
+4:/dev/disk/by-path/pci-0000:00:1f.2-ata-4 -> /dev/sdc
 root@BKP:~# find /dev/disk/by-id -type l -not -iname "*part*"\
- -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
+ -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort | awk '{ print NR ":" $0 }'
 ...
-/dev/disk/by-id/ata-QEMU_HARDDISK_QM00005 -> /dev/sdb
-/dev/disk/by-id/ata-QEMU_HARDDISK_QM00007 -> /dev/sdc
+3:/dev/disk/by-id/ata-QEMU_HARDDISK_QM00005 -> /dev/sdb
+4:/dev/disk/by-id/ata-QEMU_HARDDISK_QM00007 -> /dev/sdc
 root@BKP:~# zpool import\
  -d /dev/disk/by-path/pci-0000\:00\:1f.2-ata-3-part1\
  -d /dev/disk/by-path/pci-0000\:00\:1f.2-ata-4-part1 pool_bkp
