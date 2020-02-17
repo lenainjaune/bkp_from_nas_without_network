@@ -38,7 +38,7 @@ On a par ailleurs un avertissement lors de l'installation
  │ sein d'un <b>MEME</b> média (images de disque, machines virtuelles, etc) <b>PEUT</b>       
  │ mener à une infraction.  
 </pre>
-L'infraction citée ne serait que dans le cas d'une distribution des 2 binaires ; comme je le comprends, il faudrait OBLIGATOIREMENT passer par l'étape de construction pour être dans les clous.
+Dans cet avertissement, l'infraction citée ne serait que dans le cas d'une distribution des 2 binaires ; comme je le comprends, pour être sûr de rester dans les clous, il faut passer par l'étape de construction lors de l'installation.
 
 Nota : souhaitons que dans les temps à venir cette situation s'apaise et que Larry Ellison autorise la GPL pour ZFS, car pour moi c'est vraiment une belle technologie ;)
 
