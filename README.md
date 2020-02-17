@@ -114,6 +114,7 @@ Target   Source			# périphérique n°
 # Démarrer NAS
 
 # Déterminer quels sont les emplacements des "devices" du NAS
+# TODO : nota : comme indiqué précédemment les devices ont été ajoutés sur le bus SATA (en IDE ça ne marche pas) + idem plus bas
 root@NAS:~# find /dev/disk/by-path -type l -not -iname "*part*"\
  -exec bash -c "l=\$( readlink -f {} ) ; echo {} \"->\" \$l" \; | sort
 /dev/disk/by-path/pci-0000:00:1f.2-ata-1 -> /dev/sr0	# 1er
