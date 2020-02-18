@@ -5,39 +5,24 @@ Sauvegarde différentielle fichiers entre pools ZFS RAID1 2 disques distants san
 Voir aussi : [ZFS - ajouter un pool de 1 disque pour du RAID1](https://www.commentcamarche.net/forum/affich-36406170-zfs-ajouter-un-pool-de-1-disque-pour-du-raid1?gF-4hFHlxvdlq69e5GwmSAzhIdyMIVCDBAsuKJhgBdY)
 
 # Sommaire
-[Le contexte](#contexte)
+[Le contexte](#contexte)<br/>
+[Un mot sur ZFS on Linux](#mot_sur_zfs)<br/>
+[Environnement de test](#environnement_test)<br/>
+[Visuel (http://asciiflow.com/)](#visuel)<br/>
+[Installer ZFS sur NAS (Debian Buster)](#install_zfs_sur_nas)<br/>
+[Créer pool NAS](#creer_pool_nas)<br/>
+[Test en dégradé + reconstruction](#test_degrade)<br/>
+[Clone nas2 vers bkp2](#clone_nas2_vers_bkp2)<br/>
+[ZFS sur BKP + pool RAID1 de 1 disque unique (Debian Buster)](#zfs_sur_bkp_pool_r1_1_disque)<br/>
+[Importer le pool NAS en lecture seule](#importer_pool_nas)<br/>
+[Mise en place de Rsnapshot](#mise_en_place_rsnapshot)<br/>
+[Premières sauvegardes sur BKP](#premiere_sauvegarde)<br/>
+[Attacher bkp2 (clone de nas2) à pool_bkp](#attacher_bkp2_pool_bkp)<br/>
+[Finaliser sauvegarde depuis NAS](#finaliser_sauvegarde_depuis_nas)<br/>
+[Changer l'identification d'un disque dans un pool (Path <-> ID <-> device ...)](#changer_identification_disque)<br/>
+[Ajouter les options ZFS importantes](#ajouter_option_zfs)<br/>
+[Changer le montage du pool ZFS](#changer_montage_zfs)<br/>
 
-[Un mot sur ZFS on Linux](#mot_sur_zfs)
-
-[Environnement de test](#environnement_test)
-
-[Visuel (http://asciiflow.com/)](#visuel)
-
-[Installer ZFS sur NAS (Debian Buster)](#install_zfs_sur_nas)
-
-[Créer pool NAS](#creer_pool_nas)
-
-[Test en dégradé + reconstruction](#test_degrade)
-
-[Clone nas2 vers bkp2](#clone_nas2_vers_bkp2)
-
-[ZFS sur BKP + pool RAID1 de 1 disque unique (Debian Buster)](#zfs_sur_bkp_pool_r1_1_disque)
-
-[Importer le pool NAS en lecture seule](#importer_pool_nas)
-
-[Mise en place de Rsnapshot](#mise_en_place_rsnapshot)
-
-[Premières sauvegardes sur BKP](#premiere_sauvegarde)
-
-[Attacher bkp2 (clone de nas2) à pool_bkp](#attacher_bkp2_pool_bkp)
-
-[Finaliser sauvegarde depuis NAS](#finaliser_sauvegarde_depuis_nas)
-
-[Changer l'identification d'un disque dans un pool (Path <-> ID <-> device ...)](#changer_identification_disque)
-
-[Ajouter les options ZFS importantes](#ajouter_option_zfs)
-
-[Changer le montage du pool ZFS](#changer_montage_zfs)
 
 # Le contexte <a id="contexte"></a> 
 Je voulais mettre en place un serveur de sauvegarde différentielle de fichiers **BKP** sous Linux ([rsnapshot](https://rsnapshot.org/download.htm# bkp_from_nas_without_network
