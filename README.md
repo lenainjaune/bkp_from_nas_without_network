@@ -1,3 +1,56 @@
+RO en attente de la fin de migration
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # bkp_from_nas_without_network
 
 Sauvegarde différentielle fichiers entre pools ZFS RAID1 2 disques distants sans utiliser le réseau
